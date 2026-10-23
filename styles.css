@@ -1,0 +1,98 @@
+const header = document.querySelector('.header');
+const burger = document.querySelector('.burger');
+const drawer = document.querySelector('.drawer');
+const navLinks = document.querySelectorAll('.nav__link, .drawer__link');
+const filterButtons = document.querySelectorAll('.filter');
+const dishes = document.querySelectorAll('.dish');
+
+const updateHeaderState = () => {
+  header.classList.toggle('is-scrolled', window.scrollY > 20);
+};
+
+updateHeaderState();
+window.addEventListener('scroll', updateHeaderState);
+
+const closeDrawer = () => {
+  drawer.classList.remove('is-open');
+  burger.classList.remove('is-open');
+  burger.setAttribute('aria-expanded', 'false');
+  drawer.setAttribute('aria-hidden', 'true');
+};
+
+const openDrawer = () => {
+  drawer.classList.add('is-open');
+  burger.classList.add('is-open');
+  burger.setAttribute('aria-expanded', 'true');
+  drawer.setAttribute('aria-hidden', 'false');
+};
+
+if (burger && drawer) {
+  burger.addEventListener('click', () => {
+    const isOpen = burger.classList.contains('is-open');
+    if (isOpen) {
+      closeDrawer();
+    } else {
+      openDrawer();
+    }
+  });
+
+  navLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      closeDrawer();
+    });
+  });
+}
+
+filterButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const selectedFilter = button.dataset.filter;
+
+    filterButtons.forEach((btn) => {
+      btn.classList.toggle('is-active', btn === button);
+    });
+
+    dishes.forEach((dish) => {
+      const shouldShow = selectedFilter === 'all' || dish.dataset.category === selectedFilter;
+      dish.style.display = shouldShow ? 'grid' : 'none';
+    });
+  });
+});
+
+const sections = document.querySelectorAll('main section[id]');
+const updateActiveLink = () => {
+  const scrollPosition = window.scrollY + 160;
+
+  sections.forEach((section) => {
+    const top = section.offsetTop;
+    const bottom = top + section.offsetHeight;
+    const id = section.getAttribute('id');
+
+    if (scrollPosition >= top && scrollPosition < bottom) {
+      navLinks.forEach((link) => {
+        const isMatch = link.getAttribute('href') === `#${id}`;
+        link.classList.toggle('is-active', isMatch);
+      });
+    }
+  });
+};
+
+window.addEventListener('scroll', updateActiveLink);
+updateActiveLink();
+
+const mediaQuery = window.matchMedia('(min-width: 981px)');
+if (mediaQuery.matches) {
+  closeDrawer();
+}
+
+window.addEventListener('resize', () => {
+  if (window.innerWidth >= 981) {
+    closeDrawer();
+  }
+});
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && drawer.classList.contains('is-open')) {
+    closeDrawer();
+  }
+});
+
